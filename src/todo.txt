@@ -1,0 +1,2 @@
+1.  Finish all execution for all commands
+2.  Make sure all Exceptions fail without stack dump unless in debug mode

@@ -1,0 +1,14 @@
+<project name="beaver" default="main">
+	<build home="C:\Program Files\AdoptOpenJDK\jdk-13.0.1.9-hotspot"></build>
+	<target name="main">
+		<property file="build.properties"></property>
+		<echo message="help"></echo>
+	</target>
+	<target name="also">
+	</target>
+	<target name="build">
+	</target>
+	<target name="jar"></target>
+</project>
+		
+		

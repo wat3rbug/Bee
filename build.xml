@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Bee" default="mainTarget" basedir=".">
+    <description>A Java build tool similar to ant, because Boeing doesn't have one</description>
+	
+	<!-- Stes the properties here -->
+	<property name="src.dir" location="src"/>
+	<property name="build.dir" location="bin"/>
+	<property name="lib.dir"  location="lib"/>
+	<property name="dist"  location="dist"/>
+	<property name="app.name"  location="Bee"/>
+	<property name="app.version"  location="1.0"/>
+	<property name="main.class"  value="Bee"/>
+	
+	<!-- Set the classpath -->
+	<path id="build.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<!-- Cleanup -->
+	<target name="clean" description="Remove all files">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist}"/>
+	</target>
+	
+	<target name="makedir">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist}"/>
+	</target>
+
+	
+	<!-- Compile application -->
+	<target name="compile" depends="clean, makedir">
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="yes"
+			includeantruntime="false"
+			classpathref="build.classpath">
+		</javac>
+	</target>
+	
+	<!-- Make a jar file of everything -->
+	<target name="jar" depends="compile">
+		<jar destfile="${dist}/Bee.jar"
+			basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="Bee"/>
+			</manifest>
+			<zipgroupfileset dir="${lib.dir}" includes="**/*.jar"/>
+		</jar>
+	</target>
+	
+	<!-- Run application -->
+	<target name="mainTarget" depends="compile, jar">
+		<description>Main Target</description>
+		<mkdir dir="${dist}"/>
+		<java jar="${dist}/Bee.jar" fork="true">
+		</java>
+	</target>
+</project>
+
+
