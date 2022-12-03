@@ -1,12 +1,4 @@
-import org.xml.sax.SAXException;
-import javax.xml.parsers.*;
-import java.io.*;
-import java.nio.charset.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
+
 import org.w3c.dom.*;
 import java.util.*;
 
@@ -22,8 +14,6 @@ public class Target  {
     private String name;
     private String[] depends;
     private ArrayList<command.Command> siblings;
-    private int index = 0;
-    private boolean debug;
 
     /**
      * The constructor uses and XML node and sets up the Target for use by the
@@ -45,7 +35,6 @@ public class Target  {
      */
 
     public Target(Node currentNode, boolean debug) {
-        this.debug = debug;
         this.name = currentNode.getAttributes().getNamedItem("name").getNodeValue();
         if (debug) System.out.println("target name: " + name);
         siblings = new ArrayList<command.Command>();
@@ -78,7 +67,6 @@ public class Target  {
                 System.out.print(depends[i]);
             }
         }  
-        index = 0;
         this.toString();
     }
 

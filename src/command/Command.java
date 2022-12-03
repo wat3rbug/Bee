@@ -40,6 +40,14 @@ public interface Command {
 
     /**
      * This function executes the command according to the XML node that was provided
+     * for the constructor.  This version allows a debug flag to enable debugging.
+     * @param debug the boolean flag to toggle debugging on or off.
+     */
+
+     public void execute(boolean debug);
+
+    /**
+     * This function executes the command according to the XML node that was provided
      * for the constructor.
      */
 

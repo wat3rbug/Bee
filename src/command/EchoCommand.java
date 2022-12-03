@@ -1,13 +1,6 @@
 package command;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
-import java.io.*;
 
 /**
  * This object is used for the Echo command that is used in the build process.
@@ -16,10 +9,6 @@ import java.io.*;
 public class EchoCommand implements Command {
 
 	private String message;
-     private Node currentNode;
-     private boolean debug;
-
-
 
 	/**
       * The constructor uses an XML node and sets up the EchoCommand for use by the
@@ -41,8 +30,6 @@ public class EchoCommand implements Command {
       */
 
 	public EchoCommand(Node currentNode, boolean debug) {
-          this.debug = debug;
-          this.currentNode = currentNode;
           if (currentNode.getAttributes().getNamedItem("message") != null) {
                message = currentNode.getAttributes().getNamedItem("message").getNodeValue();
           } else {
@@ -73,13 +60,23 @@ public class EchoCommand implements Command {
 		}
 	}
 
+     /**
+      * This function execute the echo command according to the XML node that was provided for
+      * the constructor.  As it is a debug tool, the debug flag is ignored.
+      * @param debug flag is not used for this command.
+      */
+
+     public void execute(boolean debug) {
+          System.out.println("[ echo ] " + buildCmdString());
+     }
+     
  	/**
       * This function executes the command according to the XML node that was provided
       * for the constructor.
       */
 
 	public void execute() {
-          System.out.println("[ echo ] " + buildCmdString());
+          execute(false);
 	}
 
 	/**

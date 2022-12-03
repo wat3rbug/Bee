@@ -1,12 +1,6 @@
 import org.xml.sax.SAXException;
 import javax.xml.parsers.*;
 import java.io.*;
-import java.nio.charset.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
 import java.util.*;
 import command.*;
@@ -22,8 +16,6 @@ import command.*;
  */
 
 public class FileFactory {
-
-	private static String defaultTarget = null;
 
 	/**
 	 * This method returns the default target that is used for the build process.
@@ -50,7 +42,6 @@ public class FileFactory {
 
 	public static String getDefaultTarget(String filename, boolean debug) {
 		File file = new File(filename);
-		ArrayList<Target> result = new ArrayList<>();
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = null;
 		Document doc = null;

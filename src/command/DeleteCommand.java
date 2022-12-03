@@ -1,12 +1,6 @@
 package command;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
 import java.io.*;
 import java.nio.file.*;
 
@@ -18,10 +12,6 @@ public class DeleteCommand implements Command {
 
 	private String file;
 	private String dir;
-	private Node currentNode;
-	private boolean debug;
-
-	private static final int NOT_FOUND = -1;
 
 	/**
 	 * This constructor parses the XML node that is passed to it and creates
@@ -41,8 +31,6 @@ public class DeleteCommand implements Command {
 	 */
 	
 	public DeleteCommand(Node currentNode, boolean debug) {
-		this.debug = debug;
-		this.currentNode = currentNode;
 		NamedNodeMap attribs = currentNode.getAttributes();
 		if (attribs.getNamedItem("file") != null) {
 			file = attribs.getNamedItem("file").getNodeValue();
@@ -57,16 +45,27 @@ public class DeleteCommand implements Command {
 		if (debug) System.out.println("delete command: " + buildCmdString());
 	 }
 
-	 private String buildCmdString() {
-		 StringBuilder buffer = new StringBuilder();
-		 buffer.append("cmd.exe ");
-		 if (file != null) {
-			 buffer.append("del -y " + file);
-		 } else {
-			 buffer.append("del /s /q " + dir);
-		 }
-		 return buffer.toString();
-	 }
+	 /**
+      * This method builds the command String based on the environmental variables it cares about.
+      * @return A String that represents the entire command that needs to be performed.
+      */
+
+	private String buildCmdString() {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("cmd.exe ");
+		if (file != null) {
+			buffer.append("del -y " + file);
+		} else {
+			buffer.append("del /s /q " + dir);
+		}
+		return buffer.toString();
+	}
+
+	/**
+      * This method allows a dictionary of build properties to be used to update the environmental
+      * variables for this command.
+      * @param dict is the dictionary of build properties to be used for updating the command.
+      */
 
 	public void update(Dictionary dict) {
 		String[] keys = dict.getKeys();
@@ -82,10 +81,22 @@ public class DeleteCommand implements Command {
 	 * I hate cryptic details about the failure and like to have something applicable.
      */
 
-	public void execute() throws FailExecException {
+	public void execute() {
+		execute(false);
+	}
+
+	/**
+     * This function executes the delete command according to the XML node that was provided.
+	 * Custom exceptions are built so that the application can fail with the right details.
+	 * I hate cryptic details about the failure and like to have something applicable.
+	 * @param debug the boolean flag to toggle debugging during the method.
+     */
+
+	public void execute(boolean debug) throws FailExecException {
 		String current = System.getProperty("user.dir") + "\\";
 		if (dir == null) current = current + "\\" + file;
 		else current = current + "\\" + dir;
+		if (debug) System.out.println("current: " + current);
 		try {
 			Files.deleteIfExists(Paths.get(current));
 		} catch (IOException ioe) {

@@ -1,12 +1,6 @@
 package command;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
 import java.io.*;
 
 /**
@@ -27,10 +21,6 @@ public class JavaCommand implements Command {
 	private String classname;
 	private String executable;
 	private boolean fork;
-	private Node currentNode;
-	private boolean debug;
-
-	private static final int NOT_FOUND = -1;
 
 	/**
 	 * This constructor parses the java XML node that is passed to it and creates
@@ -50,8 +40,6 @@ public class JavaCommand implements Command {
 	 */
 	
 	public JavaCommand(Node currentNode, boolean debug) { 
-		this.debug = debug;
-		this.currentNode = currentNode;
 		NamedNodeMap attribs = currentNode.getAttributes();
 		if (attribs.getNamedItem("classname") == null) {
 			System.out.println("Java task does not have classname attribute defined.");
@@ -77,6 +65,12 @@ public class JavaCommand implements Command {
 		if (debug) System.out.println("java command: " + buildCmdString());
 	}
 
+	/**
+	 * This method builds the command line that will be used by the system outside of the virtual
+	 * system to run the specified application.
+	 * @return A String representation of the command that will be used.
+	 */
+
 	private String buildCmdString() {
 		StringBuilder buffer = new StringBuilder();
 		if (executable != null) buffer.append(executable + " ");
@@ -87,6 +81,12 @@ public class JavaCommand implements Command {
 		if (jar != null && !classname.endsWith(".jar")) buffer.append(".jar"); // will be sore spot later
 		return buffer.toString();
 	}
+
+	/**
+	 * This method takes the dictionary of build properties and passes those to this command to use the ones
+	 * applicable to it.
+	 * @param dict is the dictionary of key /value pairs with the build properties to use on this command.
+	 */
 
 	public void update(Dictionary dict) {
 		String[] keys = dict.getKeys();
@@ -105,6 +105,17 @@ public class JavaCommand implements Command {
      */
 
 	public void execute() {
+		execute(false);
+	}
+
+	/**
+     * This function executes the java command according to the XML node that was provided.
+	 * Custom exceptions are built so that the application can fail with the right details.
+	 * I hate cryptice details about the failure and like to have something applicable.
+	 * @param debug the boolean flag for enabling debugging.
+     */
+
+	public void execute(boolean debug) {
 		boolean usualFailure = false;
 		if (jar != null && !fork) {
 			usualFailure = true;

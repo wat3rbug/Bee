@@ -1,14 +1,7 @@
 package command;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
 import java.io.*;
-import java.lang.*;
 
 /**
  * This class is used for the mkdir XML tag that is found in the build file.
@@ -17,10 +10,6 @@ import java.lang.*;
 public class MkDirCommand implements Command {
 
 	private String dir;
-	private Node currentNode;
-	private boolean debug;
-
-	private static final int NOT_FOUND = -1;
 
 	/**
 	 * This constructor parses the XML node that is passed to it and creates
@@ -40,8 +29,6 @@ public class MkDirCommand implements Command {
 	 */
 
 	public MkDirCommand(Node currentNode, boolean debug) {
-		this.currentNode = currentNode;
-		this.debug = debug;
 		if (currentNode.getAttributes().getNamedItem("dir") != null) {
 			dir = currentNode.getAttributes().getNamedItem("dir").getNodeValue();
 		} else {
@@ -52,9 +39,22 @@ public class MkDirCommand implements Command {
 
 	}
 
+	/**
+	 * This method builds the 'command' string to properly execute the command.  As it is now
+	 * using Java native methods instead of what is translated to the outer system, it is mostly
+	 * ignored.
+	 * @return A string representation for the command that will be executed.
+	 */
+
 	private String buildCmdString() {
 		return "mkdir " + dir;
 	}
+
+	/** 
+	 * This method updates all the variables this command uses based on the dictionary of key /value
+	 * pairs that are passed to it.
+	 * @param dict is the dictionary of key /value pairs that will modify the command variables.
+	 */
 
 	public void update(Dictionary dict) {
 		String[] keys = dict.getKeys();
@@ -64,13 +64,24 @@ public class MkDirCommand implements Command {
 	}
 
 	/**
-     * This function executes the mkdir command according to the XML node that was provided.
+	 * This function executes the mkdir command according to the XML node that was provided.
 	 * Custom exceptions are built so that the application can fail with the right details.
-	 * I hate cryptic details about the failure and like to have something applicable.
-     */
+	 * This version of the method provides a boolean flag for enabling debugging.
+	 * @param debug the boolean flag that enabled debugging.
+	 */
 
 	public void execute() throws FailExecException {
+		execute(false);
+	}
+
+	/**
+     * This function executes the mkdir command according to the XML node that was provided.
+	 * Custom exceptions are built so that the application can fail with the right details.
+     */
+
+	public void execute(boolean debug) throws FailExecException {
 		String current = System.getProperty("user.dir") + "\\" + dir;
+		if (debug) System.out.println("current directory to make: " + current);
 		File fh = new File(current);
 		if (fh.mkdir()) {
 			System.out.println("[ mkdir " + dir + " complete ]");

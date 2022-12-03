@@ -1,16 +1,6 @@
 package command;
 
-import org.xml.sax.SAXException;
-import javax.xml.parsers.*;
-import java.io.*;
-import java.nio.charset.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
 
 /**
  * This class was built after some I figured I my FileFactory class was getting unwieldy.  It seemed
@@ -70,7 +60,6 @@ public class CommandFactory {
 		String check = elem.getTagName().toLowerCase();
 		if (debug) System.out.println("check is " + check);
 		boolean same = false;
-		int index = 0;
 		Command result = null;
 		if (check.matches("mkdir")) {
 			if (debug) System.out.println("making mkdir command");
@@ -112,7 +101,6 @@ public class CommandFactory {
 			result = new EchoCommand(currentNode, debug);
 			same = !same;
 		}
-		index++;
 		System.out.println("command ->" + result.commandName());
 		return result;
     }

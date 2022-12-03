@@ -1,12 +1,6 @@
 package command;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
 import java.io.*;
 
 /**
@@ -19,10 +13,6 @@ public class CompileCommand implements Command {
 	private String destdir;
 	private String classpath;
 	private String executable;
-	private boolean debug;
-	private Node currentNode;
-
-	private static final int NOT_FOUND = -1;
 
 	/**
 	 * This constructor parses the XML node that is passed to it and creates
@@ -61,8 +51,6 @@ public class CompileCommand implements Command {
 	 */
 	
 	public CompileCommand(Node currentNode, boolean debug) { 
-		this.currentNode = currentNode;
-		this.debug = debug;
 		NamedNodeMap attribs = currentNode.getAttributes();
 		if (attribs.getNamedItem("srcdir") != null) {
 				srcdir = attribs.getNamedItem("srcdir").getNodeValue();
@@ -103,20 +91,37 @@ public class CompileCommand implements Command {
 	/**
      * This function executes the compile command according to the XML node that was provided.
 	 * Custom exceptions are built so that the application can fail with the right details.
-	 * I hate cryptic details about the failure and like to have something applicable.
+	 * I hate cryptic details about the failure and like to have  something applicable.
+	 * @param debug the flag for turning debugging statements on during method.
      */
 
-	public void execute() {
+	public void execute(boolean debug) {
 		try {
 			System.out.println("[ javac ] " + buildCmdString());
 			Runtime.getRuntime().exec(buildCmdString());
 		} catch (IOException ioe) {
 			if (srcdir != null || destdir != null || classpath != null) {
-				throw new FailExecException("Unable to compile.  See parameters\n" + this.toString());
+				if (debug) {
+					throw new FailExecException("Unable to compile.  See parameters\n" + this.toString());
+				} else {
+					System.out.println("Unable to compile.  See parameters\n" + this.toString());
+					System.exit(0);
+				}
 			} else {
 				ioe.printStackTrace();
 			}
 		}
+	}
+
+	/**
+     * This function executes the compile command according to the XML node that was provided.
+	 * Custom exceptions are built so that the application can fail with the right details.
+	 * Debug is disabled by default. I hate cryptic details about the failure and like to have 
+	 * something applicable.
+     */
+
+	public void execute() {
+		execute(false);
 	}
 	
 	/**

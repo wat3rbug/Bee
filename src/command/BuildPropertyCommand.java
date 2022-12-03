@@ -1,12 +1,6 @@
 package command;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
 
 /**
  * This class is used for the build properties XML tags that are found in the build file.
@@ -16,8 +10,6 @@ public class BuildPropertyCommand implements Command {
     
 	private String name;
 	private String value;
-	private String file;
-	private Node currentNode;
 
 	/**
 	 * This constructor parses the XML node that is passed to it and creates
@@ -38,7 +30,6 @@ public class BuildPropertyCommand implements Command {
 	 */
 
 	public BuildPropertyCommand(Node currentNode, boolean debug) { 
-		this.currentNode = currentNode;
 		this.name = null;
 		this.value = null;
 		try {
@@ -58,7 +49,21 @@ public class BuildPropertyCommand implements Command {
 	 * @param dict is not used.
  	 */
 
-	public void update(Dictionary dict) { }
+	public void update(Dictionary dict) {
+		// not implemented 
+	}
+
+	/**
+     * This function supplies the build properties according to the XML node that was 
+	 * provided. Custom exceptions are built so that the application can fail with 
+	 * the right details. I hate cryptic details about the failure and like to have 
+	 * something applicable.
+	 * @param debug not used.
+     */
+	
+	public void execute(boolean debug) {
+		// not implemented
+	}
 
 	/**
      * This function supplies the build properties according to the XML node that was 
@@ -68,7 +73,7 @@ public class BuildPropertyCommand implements Command {
      */
 	
 	public void execute() {
-		// not built yet
+		// not implemented
 	}
 
 	/**

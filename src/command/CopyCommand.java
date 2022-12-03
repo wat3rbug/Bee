@@ -1,12 +1,6 @@
 package command;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
 import java.io.*;
 
 /**
@@ -18,10 +12,6 @@ public class CopyCommand implements Command {
 	private String file;
 	private String toFile;
 	private String toDir;
-	private boolean debug;
-	private Node currentNode;
-
-	private static final int NOT_FOUND = -1;
 
 	/**
 	 * This is the constructor used for creating the command node for the 
@@ -41,8 +31,6 @@ public class CopyCommand implements Command {
 	 */
 	
 	public CopyCommand(Node currentNode, boolean debug) { 
-		this.currentNode = currentNode;
-		this.debug = debug;
 		NamedNodeMap attribs = currentNode.getAttributes();
 		if (attribs.getNamedItem("file") != null) {
 			file = attribs.getNamedItem("file").getNodeValue();
@@ -63,6 +51,11 @@ public class CopyCommand implements Command {
 		if (debug) System.out.println("copy command: " + buildCmdString());
 	}
 
+	/**
+	 * This method creates the command line that will be used for copying files / directories.
+	 * @return The command as a string that will be executed by the vivrtual system.
+	 */
+
 	private String buildCmdString() {
 		if (toDir != null) {
 			return "copy " + file + " " + toDir + "/";
@@ -70,6 +63,14 @@ public class CopyCommand implements Command {
 			return "copy " + file + " " + toFile;
 		}
 	}
+
+	/**
+	 * This method is used to update all environmental variables associated with the copy command
+	 * appropriatedly based on what was passed to the dictionary of key /value pairs that represent
+	 * the build properties for this particular build.
+	 * @param dict the dictionary of build properties that will be used to modify the variables in
+	 * the copy command.
+	 */
 
 	public void update(Dictionary dict) {
 		String[] keys = dict.getKeys();
@@ -79,15 +80,26 @@ public class CopyCommand implements Command {
 			file = CommandFactory.adjust(file, "${" + keys[i] + "}", dict.getValueForKey(keys[i]));
 		}
 	}
+
+	/**
+	 * This function executes the command according to the XML node that was provided
+	 * for the the constructor.  This version has a boolean flag that is passed in order
+	 * to toggling debuggin durin this method.
+	 * @param debug the flag for toggling debugging during this method.
+	 */
+
+	public void execute(boolean debug) {
+		System.out.println("[ copy ] " + buildCmdString());
+		if (toFile != null) copy(file, toFile, debug);
+		else copy(file, toDir, debug);
+	 }
 	/**
      * This function executes the command according to the XML node that was provided
      * for the constructor.
      */
 
-	 public void execute() throws FailExecException {
-		System.out.println("[ copy ] " + buildCmdString());
-		if (toFile != null) copy(file, toFile, debug);
-		else copy(file, toDir, debug);
+	public void execute()  {
+		execute(false);
 	}
     
 	/**
@@ -120,26 +132,13 @@ public class CopyCommand implements Command {
 	 * number of files to be relatively small.
 	 * @param origin is the base file or directory to copy.
 	 * @param destination is the destination directory that the origin will be copied into.
-	 */
-
-	public void copy(String origin, String destination) throws FailExecException {
-		copy(origin, destination, false);
-	}
-
-	/**
-	 * This method is used for copying a file or a directory into a differnt directory.
-	 * There are plans for it to be recursive in nature, but we shall see how complicated
-	 * it gets when implementing it.  Since this is for a build application, I expect the 
-	 * number of files to be relatively small.
-	 * @param origin is the base file or directory to copy.
-	 * @param destination is the destination directory that the origin will be copied into.
 	 * @param debug is the boolean flag for testing purposes.
 	 */
 
-	public void copy(String origin, String destination, boolean debug) throws FailExecException {
+	private void copy(String origin, String destination, boolean debug) throws FailExecException {
 		File orig = new File(origin);
 		if (!orig.exists()) {
-			throw new FailExecException("unable to copy \'" + origin + "\' since it doesnt exist");
+			throw new FailExecException("unable from copy \'" + origin + "\' since it doesnt exist");
 		}
 		if (debug) System.out.println(origin + " is a file");
 		copySingleFile(origin, destination, debug);

@@ -1,12 +1,6 @@
 package command;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
-import java.util.*;
 import java.io.*;
 
 /**
@@ -18,10 +12,6 @@ public class JarCommand implements Command {
 	private String destFile;
 	private String basedir;
 	private String manifest;
-	private Node currentNode;
-	private boolean debug;
-
-	private static final int NOT_FOUND = -1;
 
 	/**
 	 * This constructor parses the jar XML node that is passed to it and creates
@@ -41,8 +31,6 @@ public class JarCommand implements Command {
 	 */
 	
 	public JarCommand(Node currentNode, boolean debug) {
-		this.currentNode = currentNode;
-		this.debug = debug;
 		NamedNodeMap attribs = currentNode.getAttributes();
 		if (attribs.getNamedItem("manifest") != null) {
 			manifest = attribs.getNamedItem("manifest").getNodeValue();
@@ -60,7 +48,13 @@ public class JarCommand implements Command {
 		if (debug) System.out.println("jar command: " + buildCmdString());
 	 }
 
-	 private String buildCmdString() {
+	 /**
+	 * This method builds the command line that will be used by the system outside of the virtual
+	 * system to run the specified application.
+	 * @return A String representation of the command that will be used.
+	 */
+
+	private String buildCmdString() {
 		StringBuilder buffer = new StringBuilder();
 		String args = null;
 		buffer.append("jar ");
@@ -69,7 +63,13 @@ public class JarCommand implements Command {
 		if (manifest != null) buffer.append(manifest + " ");
 		buffer.append(basedir);
 		return buffer.toString();
-	 }
+	}
+
+	/**
+	 * This method takes the dictionary of build properties and passes those to this command to use the ones
+	 * applicable to it.
+	 * @param dict is the dictionary of key /value pairs with the build properties to use on this command.
+	 */
 
 	public void update(Dictionary dict) {
 		String[] keys = dict.getKeys();
@@ -79,31 +79,69 @@ public class JarCommand implements Command {
 			manifest = CommandFactory.adjust(manifest, "${" + keys[i] + "}", dict.getValueForKey(keys[i]));
 		}
 	}
-    
+
 	/**
-     * This function executes the mkdir command according to the XML node that was provided.
+     * This function executes the jar command according to the XML node that was provided.
 	 * Custom exceptions are built so that the application can fail with the right details.
 	 * I hate cryptice details about the failure and like to have something applicable.
      */
 
 	public void execute() {
-		boolean usualFailure = false;
+		execute(false);
+	}
+    
+	/**
+     * This function executes the jar command according to the XML node that was provided.
+	 * Custom exceptions are built so that the application can fail with the right details.
+	 * I hate cryptice details about the failure and like to have something applicable.
+	 * @param debug the boolean flag for enabling debugging.
+     */
+
+	public void execute(boolean debug) {
+		ProcessBuilder pb = new ProcessBuilder(buildCmdString());
 		try {
-			System.out.println("[ jar ] " + buildCmdString());
-			Runtime.getRuntime().exec(buildCmdString());
-    	} catch (IOException ioe) {
-			if (basedir == null) {
-				usualFailure = true;
-				throw new FailExecException("unable to jar an unknown directory");
+			Process process = pb.start();
+			InputStreamReader isr = new InputStreamReader(process.getInputStream());
+			BufferedReader reader = new BufferedReader(isr);
+			String line;
+			while ((line = reader.readLine()) != null) {
+				System.out.println(line);
 			}
-			if (destFile == null) {
-				usualFailure = true;
-				throw new FailExecException("unable to create jar file since no file was given");
-			}
-			if (!usualFailure) {
-        		ioe.printStackTrace();
+		} catch (IOException ioe) {
+			if (debug) {
+				throw new FailExecException("unable to jar file " + ioe.getMessage());
+			} else {
+				ioe.printStackTrace();
+				System.exit(0);
 			}
 		}
+		
+		// boolean usualFailure = false;
+		// try {
+		// 	System.out.println("[ jar ] " + buildCmdString());
+		// 	Runtime.getRuntime().exec(buildCmdString());
+    	// } catch (IOException ioe) {
+		// 	if (basedir == null) {
+		// 		usualFailure = true;
+		// 		if (debug) throw new FailExecException("Unable to jar an unknown directory");
+		// 		else {
+		// 			System.out.println("Unable to jar an unknown directory");
+		// 			System.exit(0);
+		// 		}
+		// 	}
+		// 	if (destFile == null) {
+		// 		usualFailure = true;
+		// 		if (debug) {
+		// 			throw new FailExecException("unable to create jar file since no file was given");
+		// 		} else {
+		// 			System.out.println("Unable to create har file since no file was given");
+		// 			System.exit(0);
+		// 		}
+		// 	}
+		// 	if (!usualFailure) {
+        // 		ioe.printStackTrace();
+		// 	}
+		// }
 	}
 
 	/**
