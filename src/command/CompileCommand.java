@@ -2,6 +2,7 @@ package command;
 
 import org.w3c.dom.*;
 import java.io.*;
+import java.util.*;
 
 /**
  * This class is used for the javac XML tag that is found in the build file.
@@ -97,6 +98,20 @@ public class CompileCommand implements Command {
 
 	public void execute(boolean debug) {
 		try {
+			ArrayList<String> commandArgs = new ArrayList<>();
+			commandArgs.add("javac ");
+			srcdir ="" + srcdir;
+			commandArgs.add(srcdir);
+			destdir = "-d " + destdir;
+			commandArgs.add(destdir);
+			classpath = "-cp " + classpath;
+			commandArgs.add(classpath);
+			StringBuilder buffer = new StringBuilder();
+			for (int i = 0; i < commandArgs.size(); i++) {
+				buffer.append(commandArgs.get(i));
+			}
+			String filteredArgs = buffer.toString();
+			Runtime.getRuntime().exec(filteredArgs);
 			System.out.println("[ javac ] " + buildCmdString());
 			Runtime.getRuntime().exec(buildCmdString());
 		} catch (IOException ioe) {

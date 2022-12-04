@@ -14,7 +14,8 @@ public interface Command {
         DELETE,
         COPY,
         JAVAC,
-        PROPERTY
+        PROPERTY,
+        PROJECT
     };
 
     /**

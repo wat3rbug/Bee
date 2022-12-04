@@ -6,10 +6,9 @@ import org.w3c.dom.*;
  * This class is used for the build properties XML tags that are found in the build file.
  */
 
-public class BuildPropertyCommand implements Command {
+public class BuildPropertyCommand implements Command, Property {
     
-	private String name;
-	private String value;
+	private Tuple tuple;
 
 	/**
 	 * This constructor parses the XML node that is passed to it and creates
@@ -30,8 +29,8 @@ public class BuildPropertyCommand implements Command {
 	 */
 
 	public BuildPropertyCommand(Node currentNode, boolean debug) { 
-		this.name = null;
-		this.value = null;
+		String name = null;
+		String value = null;
 		try {
 			name = currentNode.getAttributes().getNamedItem("name").getNodeValue();			
 			value = currentNode.getAttributes().getNamedItem("value").getNodeValue();
@@ -39,6 +38,7 @@ public class BuildPropertyCommand implements Command {
 			name = "file";
 			value = currentNode.getAttributes().getNamedItem("file").getNodeValue();
 		}
+		tuple = new Tuple(name, value);
 		if (debug) System.out.println("build property command: " + this.toString());
 	}
 
@@ -82,7 +82,7 @@ public class BuildPropertyCommand implements Command {
 	 */
 
 	public Tuple getTuple() {
-		return new Tuple(name, value);
+		return tuple;
 	}
 
 	/**
@@ -96,6 +96,10 @@ public class BuildPropertyCommand implements Command {
 		return COMMAND_TYPE.PROPERTY;
 	}
 
+	public String getValueForKey(String key) {
+		return tuple.value;
+	}
+
 	/**
      * This function returns a String that represents the BuildPropertyCommand and the 
 	 * directory that the object has.
@@ -103,6 +107,6 @@ public class BuildPropertyCommand implements Command {
      */
 
 	public String toString() {
-		return name + " = " + value;
+		return tuple.toString();
 	}
 }
